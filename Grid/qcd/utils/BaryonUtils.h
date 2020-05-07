@@ -46,7 +46,7 @@ public:
   typedef typename SpinMatrixField::vector_object sobj;
 
   static const int epsilon[6][3] ;
-  static const Complex epsilon_sgn[6];
+  static const Real epsilon_sgn[6];
 
   private: 
   template <class mobj, class robj>
@@ -152,12 +152,12 @@ public:
 template <class FImpl> 
 const int BaryonUtils<FImpl>::epsilon[6][3] = {{0,1,2},{1,2,0},{2,0,1},{0,2,1},{2,1,0},{1,0,2}};
 template <class FImpl> 
-const Complex BaryonUtils<FImpl>::epsilon_sgn[6] = {Complex(1),
-						    Complex(1),
-						    Complex(1),
-						    Complex(-1),
-						    Complex(-1),
-						    Complex(-1)};
+const Real BaryonUtils<FImpl>::epsilon_sgn[6] = {Real(1),
+						    Real(1),
+						    Real(1),
+						    Real(-1),
+						    Real(-1),
+						    Real(-1)};
 
 //This is the old version
 template <class FImpl>
@@ -178,7 +178,7 @@ void BaryonUtils<FImpl>::baryon_site(const mobj &D1,
 
     auto gD1a = GammaA_left * GammaA_right * D1;
     auto gD1b = GammaA_left * g4 * GammaA_right * D1;
-    auto pD1 = 0.5* (gD1a + (double)parity * gD1b);
+    auto pD1 = 0.5* (gD1a + (Real)parity * gD1b);
     auto gD3 = GammaB_right * D3;
 
     auto D2g = D2 * GammaB_left;
@@ -193,7 +193,7 @@ void BaryonUtils<FImpl>::baryon_site(const mobj &D1,
         int a_right = epsilon[ie_right][0]; //a'
         int b_right = epsilon[ie_right][1]; //b'
         int c_right = epsilon[ie_right][2]; //c'
-	Complex ee = epsilon_sgn[ie_left] * epsilon_sgn[ie_right];
+	Real ee = epsilon_sgn[ie_left] * epsilon_sgn[ie_right];
         //This is the \delta_{456}^{123} part
 	if (wick_contraction[0]){
 	  for (int gamma_left=0; gamma_left<Ns; gamma_left++){
