@@ -184,7 +184,7 @@ int main (int argc, char ** argv)
   LatticeGaugeField Umu(UGrid);
 
   FieldMetaData header;
-  std::string file("ckpoint_lat.1000");
+  std::string file("/mnt/lustre/tursafs1/home/dp207/dp207/shared/data/configs/dwf_2+1f/C0/ckpoint_lat.1000");
   NerscIO::readConfiguration(Umu,header,file);
 
   //////////////////////// Fermion action //////////////////////////////////
