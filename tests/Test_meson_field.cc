@@ -122,6 +122,7 @@ int main(int argc, char *argv[])
   double t1 = 0.0;
   double t2 = 0.0;
   double t3 = 0.0;
+  double t4 = 0.0;
 
   /////////////////////////////////////////////////////////////////////////
   //execute meson field routine
@@ -132,9 +133,11 @@ int main(int argc, char *argv[])
   stop = usecond();
   std::cout << GridLogMessage << "M(phi,phi) created, execution time " << stop-start << " us" << std::endl;
   std::cout << GridLogMessage << "individual timers: " << std::endl;
-  std::cout << GridLogMessage << "1) outer spin product "  << t1 << " us," << 100.0*t1/(t1+t2+t3) << " % of total" << std::endl;
-  std::cout << GridLogMessage << "2) momenta & slice sum " << t2 << " us," << 100.0*t2/(t1+t2+t3) << " % of total" << std::endl;
-  std::cout << GridLogMessage << "3) gamma matrix trace "  << t3 << " us," << 100.0*t3/(t1+t2+t3) << " % of total" << std::endl;
+  std::cout << GridLogMessage << "1) outer spin product "  << t1 << " us," << 100.0*t1/(stop-start) << " % of total" << std::endl;
+  std::cout << GridLogMessage << "2) momenta & slice sum " << t2 << " us," << 100.0*t2/(stop-start) << " % of total" << std::endl;
+  std::cout << GridLogMessage << "3) gamma matrix trace "  << t3 << " us," << 100.0*t3/(stop-start) << " % of total" << std::endl;
+  t4 = stop-start-(t1+t2+t3);
+  std::cout << GridLogMessage << "time spent elsewhere: "  << t4 << " us," << 100.0*t4/(stop-start) << " % of total" << std::endl;
 
   /////////////////////////////////////////////////////////////////////////
   //execute aslash field routine
