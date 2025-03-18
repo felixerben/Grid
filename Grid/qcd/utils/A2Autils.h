@@ -62,7 +62,7 @@ public:
 			 const FermionField *rhs_vj,
 			 std::vector<Gamma::Algebra> gammas,
 			 const std::vector<ComplexField > &mom,
-			 int orthogdim, double *t_kernel = nullptr, double *t_gsum = nullptr);
+			 int orthogdim, double *t_kernel = nullptr, double *t_gsum = nullptr, double *t_gammat = nullptr);
 
   template <typename TensorType> // output: rank 5 tensor, e.g. Eigen::Tensor<ComplexD, 5>
   static void AslashField(TensorType &mat, 
@@ -144,7 +144,7 @@ void A2Autils<FImpl>::MesonField(TensorType &mat,
 				 const FermionField *rhs_vj,
 				 std::vector<Gamma::Algebra> gammas,
 				 const std::vector<ComplexField > &mom,
-				 int orthogdim, double *t_kernel, double *t_gsum) 
+				 int orthogdim, double *t_kernel, double *t_gsum, double *t_gammat) 
 {
   const int block=A2Ablocking;
   typedef typename FImpl::SiteSpinor vobj;
@@ -170,7 +170,12 @@ void A2Autils<FImpl>::MesonField(TensorType &mat,
 
   LatticeVecSpinMatrix SpinMat(grid);
   LatticeVecSpinMatrix MomSpinMat(grid);
-  
+
+  // initialize timers
+  if (t_kernel) *t_kernel = 0.0;
+  if (t_gsum) *t_gsum = 0.0;
+  if (t_gammat) *t_gammat = 0.0;
+
   std::vector<VecSpinMatrix> sliced;
   for(int i=0;i<Lblock;i++){
     autoView(SpinMat_v,SpinMat,AcceleratorWrite);
@@ -183,6 +188,7 @@ void A2Autils<FImpl>::MesonField(TensorType &mat,
 	// Should write a SpinOuterColorTrace
 	//////////////////////////////////////////
 
+        if (t_kernel) *t_kernel -= usecond();
 	accelerator_for(ss,grid->oSites(),(size_t)Nsimd,{
 	    auto left = conjugate(lhs_v(ss));
 	    auto right = rhs_v(ss);
@@ -195,15 +201,19 @@ void A2Autils<FImpl>::MesonField(TensorType &mat,
 	      }}
 	    coalescedWrite(SpinMat_v[ss],vv);
 	  });
+        if (t_kernel) *t_kernel += usecond();
 
       }// j within block
       // After getting the sitewise product do the mom phase loop
       for(int m=0;m<Nmom;m++){
 
+        if (t_gsum) *t_gsum -= usecond();
 	MomSpinMat   = SpinMat * mom[m];
 
 	sliceSum(MomSpinMat,sliced,orthogdim);
+        if (t_gsum) *t_gsum += usecond();
 
+        if (t_gammat) *t_gammat -= usecond();
 	for(int mu=0;mu<Ngamma;mu++){
 	  for(int t=0;t<sliced.size();t++){
 	    for(int j=jo;j<MIN(Rblock,jo+block);j++){
@@ -214,6 +224,7 @@ void A2Autils<FImpl>::MesonField(TensorType &mat,
 	    }
 	  }
 	}
+        if (t_gammat) *t_gammat += usecond();
       }
     }//jo
   }
@@ -335,7 +346,7 @@ void A2Autils<FImpl>::MesonField(TensorType &mat,
 				 const FermionField *rhs_vj,
 				 std::vector<Gamma::Algebra> gammas,
 				 const std::vector<ComplexField > &mom,
-				 int orthogdim, double *t_kernel, double *t_gsum) 
+				 int orthogdim, double *t_kernel, double *t_gsum, double *t_gammat) 
 {
   typedef typename FImpl::SiteSpinor vobj;
 
