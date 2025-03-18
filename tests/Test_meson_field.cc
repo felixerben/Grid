@@ -53,6 +53,8 @@ int main(int argc, char *argv[])
   std::vector<int> seeds({1,2,3,4});
   GridParallelRNG          pRNG(&grid);
   pRNG.SeedFixedIntegers(seeds);
+  std::cout << GridLogMessage << "Global grid " << latt_size << std::endl;
+  std::cout << GridLogMessage << "MPI layout " << mpi_layout << std::endl;
 
   // MesonField lhs and rhs vectors
   const int Nem=1;
@@ -117,15 +119,22 @@ int main(int argc, char *argv[])
 
   // timer
   double start,stop;
+  double t1 = 0.0;
+  double t2 = 0.0;
+  double t3 = 0.0;
 
   /////////////////////////////////////////////////////////////////////////
   //execute meson field routine
   /////////////////////////////////////////////////////////////////////////
   A2Autils<WilsonImplR>::MesonField(Mpp,&phi[0],&phi[0],Gmu,phases,Tp);
   start = usecond();
-  A2Autils<WilsonImplR>::MesonField(Mpp,&phi[0],&phi[0],Gmu,phases,Tp);
+  A2Autils<WilsonImplR>::MesonField(Mpp,&phi[0],&phi[0],Gmu,phases,Tp, &t1, &t2, &t3);
   stop = usecond();
   std::cout << GridLogMessage << "M(phi,phi) created, execution time " << stop-start << " us" << std::endl;
+  std::cout << GridLogMessage << "individual timers: " << std::endl;
+  std::cout << GridLogMessage << "1) outer spin product "  << t1 << " us," << 100.0*t1/(t1+t2+t3) << " % of total" << std::endl;
+  std::cout << GridLogMessage << "2) momenta & slice sum " << t2 << " us," << 100.0*t2/(t1+t2+t3) << " % of total" << std::endl;
+  std::cout << GridLogMessage << "3) gamma matrix trace "  << t3 << " us," << 100.0*t3/(t1+t2+t3) << " % of total" << std::endl;
 
   /////////////////////////////////////////////////////////////////////////
   //execute aslash field routine
